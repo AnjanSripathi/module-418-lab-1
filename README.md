@@ -152,13 +152,6 @@ The password hook uses an asynchronous function and returns its promise to Mongo
 
 JWTs are signed snapshots. Updating the code to include `username` in the payload affects tokens created afterward; it cannot change tokens that were already issued. Users do not need to register again—logging in again produces a fresh token with the current `_id` and `username` claims. Existing tokens remain unchanged until expiration.
 
-## Current limitations and follow-up improvements
 
-- The assignment asks registration and login responses to include the user object without the password. The current routes return a message and token, but do **not** return a user object. Add a password-safe response object if that rubric requirement applies.
-- `verifyAuthentication.js` is not yet used by a protected route.
-- `server.js` starts listening without waiting for `mongoose.connect()` to finish. For more reliable startup, await the database connection before calling `app.listen()` and report connection failures clearly.
-- The password schema currently has `trim: true`. Consider removing it so leading/trailing spaces in passwords are preserved exactly as entered; password values are generally not normalized.
-- `.gitignore` currently lists `verifyAuthentication.js`, so Git will ignore that middleware file. Remove that entry if the middleware should be included in the repository.
-- The `test` script in `package.json` is a placeholder and does not run an automated test suite yet.
 
 
