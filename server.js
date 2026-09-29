@@ -42,7 +42,12 @@ app.post('/api/users/register',async (req,res)=>{
         const newUser = await User.create(req.body);
         const payload = {_id:newUser._id, username:newUser.username};
         const token = jwt.sign(payload, JWT_SECRET, {expiresIn:"1h"});
-        res.status(201).json({message:"User created successfully...", token});
+        const userResponse = {
+            _id: newUser._id,
+            username: newUser.username,
+            email: newUser.email
+        };
+        res.status(201).json({message:"User created successfully...", user:userResponse, token});
     }
     catch(error){
         console.error(error);
@@ -62,7 +67,12 @@ app.post('/api/users/login', async(req,res)=>{
         }
         const payload = {_id:user._id, username:user.username};
         const token = jwt.sign(payload, JWT_SECRET, {expiresIn:"1h"});
-        res.status(200).json({ message: "User logged in successfully!", token });
+        const userResponse = {
+            _id: user._id,
+            username: user.username,
+            email: user.email
+        };
+        res.status(200).json({ message: "User logged in successfully!", token, user:userResponse });
     }
     catch(error){
         console.error(error);
