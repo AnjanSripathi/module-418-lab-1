@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken');
 // const { MongoClient } = require('mongodb');
 const User = require('./User');
 
+const verifyAuthentication = require('./verifyAuthentication');
+const noteRoutes = require('./router');
 // The connection string is loaded from the .env file
 // Sensitive information from .env
 const port = process.env.PORT || 3001;
@@ -31,8 +33,23 @@ mongoose.connection.once("close", ()=>{
     console.log('Connection to MongoDB has closed...')
 })
 
-
+const getUser = async(req,res)=>{
+    try{
+        if(!req.user){
+            return res.status(401).json({message: "User must register or login "});
+        }
+        const user = await User.findById(req.user._id).select("-password");
+        res.status(200).json({message:"User authenticated", user});
+    }
+    catch(error){
+        console.error(error);
+        res.status(400).json({message: error.message});
+    }
+}
 // Route handlers
+app.get('/api/users/', verifyAuthentication, getUser);
+
+// Register 
 app.post('/api/users/register',async (req,res)=>{
     try{
         const foundUser = await User.findOne({email: req.body.email});
@@ -55,6 +72,7 @@ app.post('/api/users/register',async (req,res)=>{
     }
 })
 
+// Login
 app.post('/api/users/login', async(req,res)=>{
     try{
         const user = await User.findOne({email:req.body.email});
@@ -79,6 +97,9 @@ app.post('/api/users/login', async(req,res)=>{
         res.status(400).json({ message: error.message });
     }
 })
+
+// CRUD operations on Notes
+app.use('/api/notes',noteRoutes);
 
 app.listen(port, ()=>{
     console.log(`Server is running at http://localhost:${port}`);
